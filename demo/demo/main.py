@@ -13,7 +13,7 @@ def append_dir(tree, tree_id, s_list_dir):
         s_list_dir 一个绝对路径,会自动遍历下面的子目录
     """
 
-    invalid_files = [".idea", "venv", "test1.py", "Tcs.xlsx"]
+    invalid_files = [".idea", "venv", "test1.py", "Tcs.xlsx", ".gitignore"]
     # 有些目录没有权限访问的,避免其报错
     try:
         list_first_dir = os.listdir(s_list_dir)
@@ -41,6 +41,7 @@ class MyFrame(wx.Frame):
     def __init__(self, parent):
 
         self.checked_items = []
+        self.item_list = []
         self.input_path = None
 
         wx.Frame.__init__(self, parent, -1, title="simple tree", size=(400, 500),
@@ -122,46 +123,118 @@ class MyFrame(wx.Frame):
         print("当前文件夹", self.text_main1.GetValue())
         self.input_path = self.text_main1.GetValue()
         if os.path.isdir(self.input_path):
-            self.root = self.custom_tree.AddRoot(self.input_path.split("\\")[-1], ct_type=1)
+            self.root_name = self.input_path.split("\\")[-1]
+            self.root = self.custom_tree.AddRoot(self.root_name, ct_type=1)
+            print("self.root ", self.root)
             append_dir(self.custom_tree, self.root, self.input_path)
             self.custom_tree.ExpandAll()
+
+
+
+    def add_all_childs(self, item_obj):
+
+        print("item_obj", item_obj)
+        # (item, cookie) = self.custom_tree.GetFirstChild(item_obj)
+        # print("item, cookie", (item, cookie))
+        file_patterns = "*.py"
+        # print(" item name in childs",self.custom_tree.GetItemText(item_obj))
+        # print(" GetSelection ", self.custom_tree.GetSelection())
+        # print(" self.custom_tree.ItemHasChildren(item_obj) ", self.custom_tree.ItemHasChildren(item_obj))
+        # print(" GetChildrenCount() ", self.custom_tree.GetChildrenCount(item_obj, recursively=True))
+
+        # print(" GetChildrenCount() ", self.custom_tree.GetChildren(item_obj, recursively=True)[0])
+        print(item_obj.GetChildren())
+        for i in item_obj.GetChildren():
+
+            if fnmatch.fnmatch(self.custom_tree.GetItemText(i), file_patterns) and (self.custom_tree.GetItemText(i) not in self.item_list):
+                self.item_list.append(self.custom_tree.GetItemText(i))
+            else:
+                self.add_all_childs(i)
+        # #
+        #     else:
+        #         item = self.custom_tree.GetNextActiveItem(item_obj, down=True)
+        #         self.get_childs(item_obj)
+        #         # (item, cookie) = self.custom_tree.GetNextChild(item_obj, cookie)
+        # while item:
+        #     item_list.append(item)
+        #     # print("ok")
+        #     (item, cookie) = self.custom_tree.GetNextChild(item_obj, cookie)
+        #     print("item in loop is ", self.custom_tree.GetItemText(item))
+        print("item_list ", self.item_list)
+
+
+
+    # def add_in_list(self,event):
+    #     print("add in list")
+    #
+    #     print("self.custom_tree.IsItemChecked(event.GetItem()) ", self.custom_tree.IsItemChecked(event.GetItem()))
+    #     if self.custom_tree.IsItemChecked(event.GetItem()):
+    #         self.custom_tree.CheckChilds(event.GetItem())
+    #         for item in self.get_childs(event.GetItem()):
+    #             print("item is ", item)
+    #             temp_file = os.path.join(self.input_path, self.custom_tree.GetItemText(item))
+    #             print("self.custom_tree.GetItemText(item) is ", self.custom_tree.GetItemText(item))
+    #             if os.path.isdir(temp_file):
+    #                 add_in_list(self, event)
+    #             # if fnmatch.fnmatch(self.custom_tree.GetItemText(item), file_patterns):
+    #             self.checked_items.append(self.custom_tree.GetItemText(self.item_list))
+    #             print("add all")
+    #     else:
+    #         for item in self.get_childs(event.GetItem()):
+    #             self.custom_tree.CheckItem(item, False)
+    #             self.checked_items.remove(self.custom_tree.GetItemText(item))
+    #             print("remove all ")
+
+    def delete_all_childs(self, item_obj):
+
+        print("item_obj", item_obj)
+
+        file_patterns = "*.py"
+        print(item_obj.GetChildren())
+        for i in item_obj.GetChildren():
+            self.custom_tree.CheckItem(i, False)
+            if fnmatch.fnmatch(self.custom_tree.GetItemText(i), file_patterns) and (self.custom_tree.GetItemText(i) in self.item_list):
+                self.item_list.remove(self.custom_tree.GetItemText(i))
+
+            else:
+                self.delete_all_childs(i)
+
+        print("item_list ", self.item_list)
 
     def checked_item(self, event):
         # 只要树控件中的任意一个复选框状态有变化就会响应这个函数
         file_patterns = "*.py"
+        print("event.GetItem() ", event.GetItem())
+        print("self.custom_tree.GetItemText(event.GetItem()) ", self.custom_tree.GetItemText(event.GetItem()))
+        # file_path = self.input_path.split("\\")[:-1]
+        # print("file_path ", file_path)
+        # temp = file_path + "\\" + self.custom_tree.GetItemText(event.GetItem())
+
+        # print("temp ", temp)
         if event.GetItem() == self.root:
             if self.custom_tree.IsItemChecked(event.GetItem()):
-                self.custom_tree.CheckChilds(self.root)
-                for item in self.get_childs(self.root):
-                    # print("item is ", item)
-                    # print("self.custom_tree.GetItemText(item) is ",self.custom_tree.GetItemText(item))
-                    if fnmatch.fnmatch(self.custom_tree.GetItemText(item), file_patterns):
-                        self.checked_items.append(self.custom_tree.GetItemText(item))
-                        print("add all")
+                self.custom_tree.CheckChilds(event.GetItem())
+                self.add_all_childs(event.GetItem())
+                print("add all")
+                    # self.checked_items.append(self.custom_tree.GetItemText(item))
             else:
-                for item in self.get_childs(self.root):
-                    self.custom_tree.CheckItem(item, False)
-                    self.checked_items.remove(self.custom_tree.GetItemText(item))
-                    print("remove all ")
-        else:
-            if self.custom_tree.IsItemChecked(event.GetItem()):
-                # print("self.custom_tree.GetItemText(event.GetItem()) is ", self.custom_tree.GetItemText(event.GetItem()))
-                if fnmatch.fnmatch(self.custom_tree.GetItemText(event.GetItem()), file_patterns):
-                    self.checked_items.append(self.custom_tree.GetItemText(event.GetItem()))
-                    print("add child")
-            else:
-                self.checked_items.remove(self.custom_tree.GetItemText(event.GetItem()))
-                print("remove child ")
+
+                self.delete_all_childs(event.GetItem())
+                    # self.checked_items.remove(self.custom_tree.GetItemText(item))
+                print("remove all ")
+        # else:
+        #     if self.custom_tree.IsItemChecked(event.GetItem()):
+        #         # print("self.custom_tree.GetItemText(event.GetItem()) is ", self.custom_tree.GetItemText(event.GetItem()))
+        #         # if fnmatch.fnmatch(self.custom_tree.GetItemText(event.GetItem()), file_patterns):
+        #         self.checked_items.append(self.custom_tree.GetItemText(event.GetItem()))
+        #         print("add child")
+        #     else:
+        #         self.checked_items.remove(self.custom_tree.GetItemText(event.GetItem()))
+        #         print("remove child ")
         print(self.checked_items)
 
-    def get_childs(self, item_obj):
-        item_list = []
-        (item, cookie) = self.custom_tree.GetFirstChild(item_obj)
-        while item:
-            item_list.append(item)
-            # print("ok")
-            (item, cookie) = self.custom_tree.GetNextChild(item_obj, cookie)
-        return item_list
+
+
 
 if __name__ == '__main__':
     app = wx.App()
