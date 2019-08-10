@@ -40,9 +40,11 @@ def append_dir(tree, tree_id, s_list_dir):
 class MyFrame(wx.Frame):
     def __init__(self, parent):
 
-        self.checked_items = []
+        # self.checked_items = []
         self.item_list = []
         self.input_path = None
+        self.times = 0
+        self.times1 = 0
 
         wx.Frame.__init__(self, parent, -1, title="simple tree", size=(400, 500),
                           style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
@@ -66,7 +68,9 @@ class MyFrame(wx.Frame):
         v_box1.Add((-1, 20))
 
         self.custom_tree = ct.CustomTreeCtrl(self, agwStyle=wx.TR_DEFAULT_STYLE)
+        # self.times += 1
         self.Bind(ct.EVT_TREE_ITEM_CHECKED, self.checked_item)
+        # print("times ", self.times)
         # v_box1.Add(h_box1, 0, wx.ALL, 5
         v_box1.Add(self.custom_tree, proportion=1, flag=wx.LEFT | wx.RIGHT | wx.EXPAND, border=10)
 
@@ -76,7 +80,7 @@ class MyFrame(wx.Frame):
 
         self.m_staticText2 = wx.StaticText(self, wx.ID_ANY, u"请输入loop times", wx.DefaultPosition, wx.DefaultSize, 0)
         self.m_staticText2.Wrap(-1)
-        h_box1.Add(self.m_staticText2,flag=wx.RIGHT, border=8)
+        h_box1.Add(self.m_staticText2, flag=wx.RIGHT, border=8)
 
         self.text_main2 = wx.TextCtrl(self, wx.ID_ANY, wx.EmptyString,  wx.DefaultPosition, wx.DefaultSize, style=wx.TE_CENTRE)
         h_box1.Add(self.text_main2, proportion=1)
@@ -115,7 +119,7 @@ class MyFrame(wx.Frame):
     def add_button_file(self, event):
         print("add_button_file")
         print("当前文件夹", self.text_main2.GetValue())
-        print("当前要添加的文件为 ", self.checked_items)
+        print("当前要添加的文件为 ", self.item_list)
 
     def main_button_click(self, event):
         # event.Skip()
@@ -133,7 +137,7 @@ class MyFrame(wx.Frame):
 
     def add_all_childs(self, item_obj):
 
-        print("item_obj", item_obj)
+        # print("item_obj", item_obj)
         # (item, cookie) = self.custom_tree.GetFirstChild(item_obj)
         # print("item, cookie", (item, cookie))
         file_patterns = "*.py"
@@ -143,9 +147,11 @@ class MyFrame(wx.Frame):
         # print(" GetChildrenCount() ", self.custom_tree.GetChildrenCount(item_obj, recursively=True))
 
         # print(" GetChildrenCount() ", self.custom_tree.GetChildren(item_obj, recursively=True)[0])
-        print(item_obj.GetChildren())
+        print(len(item_obj.GetChildren()))
         for i in item_obj.GetChildren():
-
+            print(" current file is  ", self.custom_tree.GetItemText(i))
+            # print("times ", self.times)
+            # self.times += 1
             if fnmatch.fnmatch(self.custom_tree.GetItemText(i), file_patterns) and (self.custom_tree.GetItemText(i) not in self.item_list):
                 self.item_list.append(self.custom_tree.GetItemText(i))
             else:
@@ -160,60 +166,102 @@ class MyFrame(wx.Frame):
         #     # print("ok")
         #     (item, cookie) = self.custom_tree.GetNextChild(item_obj, cookie)
         #     print("item in loop is ", self.custom_tree.GetItemText(item))
+
+
         print("item_list ", self.item_list)
 
 
 
-    # def add_in_list(self,event):
-    #     print("add in list")
-    #
-    #     print("self.custom_tree.IsItemChecked(event.GetItem()) ", self.custom_tree.IsItemChecked(event.GetItem()))
-    #     if self.custom_tree.IsItemChecked(event.GetItem()):
-    #         self.custom_tree.CheckChilds(event.GetItem())
-    #         for item in self.get_childs(event.GetItem()):
-    #             print("item is ", item)
-    #             temp_file = os.path.join(self.input_path, self.custom_tree.GetItemText(item))
-    #             print("self.custom_tree.GetItemText(item) is ", self.custom_tree.GetItemText(item))
-    #             if os.path.isdir(temp_file):
-    #                 add_in_list(self, event)
-    #             # if fnmatch.fnmatch(self.custom_tree.GetItemText(item), file_patterns):
-    #             self.checked_items.append(self.custom_tree.GetItemText(self.item_list))
-    #             print("add all")
-    #     else:
-    #         for item in self.get_childs(event.GetItem()):
-    #             self.custom_tree.CheckItem(item, False)
-    #             self.checked_items.remove(self.custom_tree.GetItemText(item))
-    #             print("remove all ")
-
     def delete_all_childs(self, item_obj):
-
-        print("item_obj", item_obj)
+        # print("item_obj", item_obj)
 
         file_patterns = "*.py"
         print(item_obj.GetChildren())
-        for i in item_obj.GetChildren():
-            self.custom_tree.CheckItem(i, False)
-            if fnmatch.fnmatch(self.custom_tree.GetItemText(i), file_patterns) and (self.custom_tree.GetItemText(i) in self.item_list):
-                self.item_list.remove(self.custom_tree.GetItemText(i))
+        try:
+            for i in item_obj.GetChildren():
+                self.custom_tree.CheckItem(i, False)
+                if fnmatch.fnmatch(self.custom_tree.GetItemText(i), file_patterns) and (self.custom_tree.GetItemText(i) in self.item_list):
+                    # print("current delete file in all childs is ", self.custom_tree.GetItemText(i))
+                    self.item_list.remove(self.custom_tree.GetItemText(i))
+                    # print("item_list ", self.item_list)
+                else:
+                    self.delete_all_childs(i)
+        except:
+            pass
 
-            else:
-                self.delete_all_childs(i)
+        # print("item_list ", self.item_list)
 
+
+    def add_childs(self, item_obj):
+
+        # print("item_obj", item_obj)
+        file_patterns = "*.py"
+        # self.custom_tree.CheckChilds(event.GetItem())
+        print(item_obj.GetChildren())
+        if item_obj.GetChildren():
+            self.add_all_childs(item_obj)
+        else:
+            self.custom_tree.CheckChilds(item_obj)
+            self.item_list.append(self.custom_tree.GetItemText(item_obj))
         print("item_list ", self.item_list)
+
+
+    def delete_childs(self, item_obj):
+        # print("item_obj", item_obj)
+        # print("times1 ", self.times1)
+
+
+        file_patterns = "*.py"
+        # print(item_obj.GetChildren())
+        if item_obj.GetChildren():
+            self.delete_all_childs(item_obj)
+        else:
+            try:
+                self.custom_tree.CheckItem(item_obj, False)
+                # print("current delete file in childs is ",self.custom_tree.GetItemText(item_obj))
+
+                self.item_list.remove(self.custom_tree.GetItemText(item_obj))
+
+            except:
+                pass
+
+        # print("item_list ", self.item_list)
+
 
     def checked_item(self, event):
         # 只要树控件中的任意一个复选框状态有变化就会响应这个函数
         file_patterns = "*.py"
-        print("event.GetItem() ", event.GetItem())
-        print("self.custom_tree.GetItemText(event.GetItem()) ", self.custom_tree.GetItemText(event.GetItem()))
+        # print("event.GetItem() ", event.GetItem())
+        # print("self.custom_tree.GetItemText(event.GetItem()) ", self.custom_tree.GetItemText(event.GetItem()))
         # file_path = self.input_path.split("\\")[:-1]
         # print("file_path ", file_path)
         # temp = file_path + "\\" + self.custom_tree.GetItemText(event.GetItem())
-
+        print("times ", self.times)
+        # print("times1 ", self.times1)
         # print("temp ", temp)
+
+
+        if self.custom_tree.IsItemChecked(event.GetItem()):
+            # print("self.custom_tree.GetItemText(event.GetItem()) is ", self.custom_tree.GetItemText(event.GetItem()))
+            # if fnmatch.fnmatch(self.custom_tree.GetItemText(event.GetItem()), file_patterns):
+            # self.checked_items.append(self.custom_tree.GetItemText(event.GetItem()))
+            self.custom_tree.CheckChilds(event.GetItem())
+            self.add_childs(event.GetItem())
+            print("add child")
+        else:
+
+            # self.checked_items.remove(self.custom_tree.GetItemText(event.GetItem()))
+            self.delete_childs(event.GetItem())
+            print("remove child ")
+        self.times += 1
+'''
+        ##如果当前选中的为root节点
         if event.GetItem() == self.root:
             if self.custom_tree.IsItemChecked(event.GetItem()):
                 self.custom_tree.CheckChilds(event.GetItem())
+
+                # self.times += 1
+                # print("times ", self.times)
                 self.add_all_childs(event.GetItem())
                 print("add all")
                     # self.checked_items.append(self.custom_tree.GetItemText(item))
@@ -222,19 +270,30 @@ class MyFrame(wx.Frame):
                 self.delete_all_childs(event.GetItem())
                     # self.checked_items.remove(self.custom_tree.GetItemText(item))
                 print("remove all ")
-        # else:
-        #     if self.custom_tree.IsItemChecked(event.GetItem()):
-        #         # print("self.custom_tree.GetItemText(event.GetItem()) is ", self.custom_tree.GetItemText(event.GetItem()))
-        #         # if fnmatch.fnmatch(self.custom_tree.GetItemText(event.GetItem()), file_patterns):
-        #         self.checked_items.append(self.custom_tree.GetItemText(event.GetItem()))
-        #         print("add child")
-        #     else:
-        #         self.checked_items.remove(self.custom_tree.GetItemText(event.GetItem()))
-        #         print("remove child ")
-        print(self.checked_items)
+
+
+        ###如果选中的不是root节点
+        else:
+
+            if self.custom_tree.IsItemChecked(event.GetItem()):
+                # print("self.custom_tree.GetItemText(event.GetItem()) is ", self.custom_tree.GetItemText(event.GetItem()))
+                # if fnmatch.fnmatch(self.custom_tree.GetItemText(event.GetItem()), file_patterns):
+                # self.checked_items.append(self.custom_tree.GetItemText(event.GetItem()))
+                self.custom_tree.CheckChilds(event.GetItem())
+                self.add_childs(event.GetItem())
+                print("add child")
+            else:
+
+                # self.checked_items.remove(self.custom_tree.GetItemText(event.GetItem()))
+                self.delete_childs(event.GetItem())
+                print("remove child ")
+'''
+        # print(self.checked_items)
 
 
 
+
+        # print("last item_list ", self.item_list)
 
 if __name__ == '__main__':
     app = wx.App()
