@@ -1,9 +1,9 @@
 # encoding:utf-8
 import fnmatch
-
 import wx
 import wx.lib.agw.customtreectrl as ct
 import os
+import pandas as pd
 
 
 def append_dir(tree, tree_id, s_list_dir):
@@ -58,7 +58,8 @@ class MyFrame(wx.Frame):
         self.m_staticText1.Wrap(-1)
         v_box1.Add(self.m_staticText1, 0, wx.ALL, 5)
 
-        self.text_main1 = wx.TextCtrl(self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, size=(200, 30), style=wx.TE_CENTRE)
+        self.text_main1 = wx.TextCtrl(self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, size=(200, 30),
+                                      style=wx.TE_CENTRE)
         v_box1.Add(self.text_main1, 0, wx.ALL, 5)
 
         self.m_button1 = wx.Button(self, wx.ID_ANY, u"确定", wx.DefaultPosition, wx.DefaultSize, 0)
@@ -82,10 +83,11 @@ class MyFrame(wx.Frame):
         self.m_staticText2.Wrap(-1)
         h_box1.Add(self.m_staticText2, flag=wx.RIGHT, border=8)
 
-        self.text_main2 = wx.TextCtrl(self, wx.ID_ANY, wx.EmptyString,  wx.DefaultPosition, wx.DefaultSize, style=wx.TE_CENTRE)
+        self.text_main2 = wx.TextCtrl(self, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize,
+                                      style=wx.TE_CENTRE)
         h_box1.Add(self.text_main2, proportion=1)
 
-        v_box1.Add(h_box1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=10)
+        v_box1.Add(h_box1, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
 
         v_box1.Add((-1, 15))
         h_box2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -96,9 +98,9 @@ class MyFrame(wx.Frame):
 
         self.m_button3 = wx.Button(self, wx.ID_ANY, u"执行自动化测试TcsRunner", wx.DefaultPosition, size=(200, 30))
         self.m_button3.Bind(wx.EVT_BUTTON, self.run_test)
-        h_box2.Add(self.m_button3, flag=wx.LEFT|wx.BOTTOM, border=5)
+        h_box2.Add(self.m_button3, flag=wx.LEFT | wx.BOTTOM, border=5)
 
-        v_box1.Add(h_box2, flag=wx.ALIGN_RIGHT|wx.RIGHT, border=20)
+        v_box1.Add(h_box2, flag=wx.ALIGN_RIGHT | wx.RIGHT, border=20)
         v_box1.Add((-1, 15))
 
         self.SetSizer(v_box1)
@@ -115,11 +117,55 @@ class MyFrame(wx.Frame):
         cmd2 = "python test1.py"
         os.system(cmd2)
 
-
     def add_button_file(self, event):
         print("add_button_file")
-        print("当前文件夹", self.text_main2.GetValue())
+        print("当前loop times ", self.text_main2.GetValue())
         print("当前要添加的文件为 ", self.item_list)
+
+        file_name = "./Tcs.xlsx"
+        df = pd.read_excel(file_name, usecols=[0], sheet_name='Sheet1')
+        df_li = df.values.tolist()
+
+        list_name_existed = []
+        for s_li in df_li:
+            list_name_existed.append(s_li[0])
+        print("list_name_existed  first read ", list_name_existed)
+
+        # add_list = []
+        new_item_list = []
+        for item in self.item_list:
+            new_item_list.append(item.split(".")[0])
+
+        for n in new_item_list:
+            if n not in list_name_existed:
+                list_name_existed.append(n)
+        print("list_name_existed   ", list_name_existed)
+
+        # print("add_list   ", add_list)
+        loop_times = [self.text_main2.GetValue() for i in range(len(list_name_existed))]
+
+        columns = ['Name', 'Loop times']
+        writer = pd.ExcelWriter(file_name)
+        df1 = pd.DataFrame(data={'Name': list_name_existed, 'Loop times': loop_times})
+        df1.to_excel(writer, 'Sheet1', index=False, encoding='utf-8-sig', columns=columns)
+        writer.save()
+
+        # list_loop_existed = pd.read_excel(file_name, sheetname=None)
+        column1_name = "Name"
+        column2_name = "Loop Times"
+        # print(list_existed['Sheet1'].(loop times))
+        # print(list_existed['Sheet1'].column2_name)
+        # print("list_name_existed ", list_name_existed)
+        # print("list_loop_existed ", list_loop_existed)
+
+        if self.text_main2.GetValue() and self.item_list:
+            wx.CallLater(3000, self.ShowMessage)
+
+            self.SetTitle('Message box')
+
+    def ShowMessage(self):
+        wx.MessageBox('添加成功', 'Info',
+                      wx.OK | wx.ICON_INFORMATION)
 
     def main_button_click(self, event):
         # event.Skip()
@@ -127,13 +173,11 @@ class MyFrame(wx.Frame):
         print("当前文件夹", self.text_main1.GetValue())
         self.input_path = self.text_main1.GetValue()
         if os.path.isdir(self.input_path):
-            self.root_name = self.input_path.split("\\")[-1]
-            self.root = self.custom_tree.AddRoot(self.root_name, ct_type=1)
+            root_name = self.input_path.split("\\")[-1]
+            self.root = self.custom_tree.AddRoot(root_name, ct_type=1)
             print("self.root ", self.root)
             append_dir(self.custom_tree, self.root, self.input_path)
             self.custom_tree.ExpandAll()
-
-
 
     def add_all_childs(self, item_obj):
 
@@ -152,7 +196,8 @@ class MyFrame(wx.Frame):
             print(" current file is  ", self.custom_tree.GetItemText(i))
             # print("times ", self.times)
             # self.times += 1
-            if fnmatch.fnmatch(self.custom_tree.GetItemText(i), file_patterns) and (self.custom_tree.GetItemText(i) not in self.item_list):
+            if fnmatch.fnmatch(self.custom_tree.GetItemText(i), file_patterns) and (
+                    self.custom_tree.GetItemText(i) not in self.item_list):
                 self.item_list.append(self.custom_tree.GetItemText(i))
             else:
                 self.add_all_childs(i)
@@ -167,10 +212,7 @@ class MyFrame(wx.Frame):
         #     (item, cookie) = self.custom_tree.GetNextChild(item_obj, cookie)
         #     print("item in loop is ", self.custom_tree.GetItemText(item))
 
-
         print("item_list ", self.item_list)
-
-
 
     def delete_all_childs(self, item_obj):
         # print("item_obj", item_obj)
@@ -180,7 +222,8 @@ class MyFrame(wx.Frame):
         try:
             for i in item_obj.GetChildren():
                 self.custom_tree.CheckItem(i, False)
-                if fnmatch.fnmatch(self.custom_tree.GetItemText(i), file_patterns) and (self.custom_tree.GetItemText(i) in self.item_list):
+                if fnmatch.fnmatch(self.custom_tree.GetItemText(i), file_patterns) and (
+                        self.custom_tree.GetItemText(i) in self.item_list):
                     # print("current delete file in all childs is ", self.custom_tree.GetItemText(i))
                     self.item_list.remove(self.custom_tree.GetItemText(i))
                     # print("item_list ", self.item_list)
@@ -190,7 +233,6 @@ class MyFrame(wx.Frame):
             pass
 
         # print("item_list ", self.item_list)
-
 
     def add_childs(self, item_obj):
 
@@ -205,11 +247,9 @@ class MyFrame(wx.Frame):
             self.item_list.append(self.custom_tree.GetItemText(item_obj))
         print("item_list ", self.item_list)
 
-
     def delete_childs(self, item_obj):
         # print("item_obj", item_obj)
         # print("times1 ", self.times1)
-
 
         file_patterns = "*.py"
         # print(item_obj.GetChildren())
@@ -227,7 +267,6 @@ class MyFrame(wx.Frame):
 
         # print("item_list ", self.item_list)
 
-
     def checked_item(self, event):
         # 只要树控件中的任意一个复选框状态有变化就会响应这个函数
         file_patterns = "*.py"
@@ -239,7 +278,6 @@ class MyFrame(wx.Frame):
         print("times ", self.times)
         # print("times1 ", self.times1)
         # print("temp ", temp)
-
 
         if self.custom_tree.IsItemChecked(event.GetItem()):
             # print("self.custom_tree.GetItemText(event.GetItem()) is ", self.custom_tree.GetItemText(event.GetItem()))
@@ -254,7 +292,7 @@ class MyFrame(wx.Frame):
             self.delete_childs(event.GetItem())
             print("remove child ")
         self.times += 1
-'''
+        '''
         ##如果当前选中的为root节点
         if event.GetItem() == self.root:
             if self.custom_tree.IsItemChecked(event.GetItem()):
@@ -287,13 +325,11 @@ class MyFrame(wx.Frame):
                 # self.checked_items.remove(self.custom_tree.GetItemText(event.GetItem()))
                 self.delete_childs(event.GetItem())
                 print("remove child ")
-'''
+        '''
         # print(self.checked_items)
 
-
-
-
         # print("last item_list ", self.item_list)
+
 
 if __name__ == '__main__':
     app = wx.App()

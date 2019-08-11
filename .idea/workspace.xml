@@ -2,20 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="89c5194f-0a05-45f6-9d3e-98c378a79beb" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/demoTree_wxPython.iml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/demo/.idea/demo.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/demo/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/demo/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/demo/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/demo/Tcs.xlsx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/demo/test1/test2/hello.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/demo/test1/test2/world.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/demo/demo/test1/test3/haha.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demo/demo/Tcs.xlsx" beforeDir="false" afterPath="$PROJECT_DIR$/demo/demo/Tcs.xlsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/demo/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/demo/demo/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/demo/demo/test1.py" beforeDir="false" afterPath="$PROJECT_DIR$/demo/demo/test1.py" afterDir="false" />
     </list>
@@ -34,18 +27,6 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-  </component>
-  <component name="ProjectConfigurationFiles">
-    <option name="files">
-      <list>
-        <option value="$PROJECT_DIR$/.idea/demoTree_wxPython.iml" />
-        <option value="$PROJECT_DIR$/.idea/vcs.xml" />
-        <option value="$PROJECT_DIR$/.idea/misc.xml" />
-        <option value="$PROJECT_DIR$/.idea/modules.xml" />
-        <option value="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" />
-        <option value="$PROJECT_DIR$/.idea/.gitignore" />
-      </list>
-    </option>
   </component>
   <component name="ProjectId" id="1PDEo22gMvC0634h6V7IISzzj8e" />
   <component name="PropertiesComponent">
@@ -137,7 +118,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
